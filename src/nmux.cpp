@@ -221,8 +221,6 @@ int main(int argc, char* argv[])
 				fprintf(stderr, "\x1b[0m\n");
 			}
 
-			const int set = 1;
-			setsockopt(new_socket, SOL_SOCKET, SO_NOSIGPIPE, &set, sizeof(set));
 
 			//We're the parent, let's create a new client and initialize it
 			client_t* new_client = new client_t;
@@ -335,7 +333,7 @@ void* client_thread (void* param)
 
 		//Read data from global tsmpool and write it to client socket
 		if(NMUX_DEBUG) fprintf(stderr, "client %p: sending...", param);
-		ret = send(this_client->socket, pool_read_buffer + client_buffer_index, lpool->size - client_buffer_index, 0);
+		ret = send(this_client->socket, pool_read_buffer + client_buffer_index, lpool->size - client_buffer_index, MSG_NOSIGNAL);
 		if(NMUX_DEBUG) fprintf(stderr, "client sent.\n");
 		if(ret == -1) 
 		{
