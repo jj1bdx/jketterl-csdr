@@ -30,6 +30,13 @@ This should work, but it's probably not what you want.
 Please install FFTW3 and it's header files to make this warning go away.")
 endif()
 
+find_path(FFTW3_INCLUDE_DIR fftw3.h
+	HINT /usr/local/include)
+find_library(FFTW3_LIBRARY libfftw3f.a
+	HINT /usr/local/lib)
+
+message(STATUS "fftw3: ${FFTW3_INCLUDE_DIR}, ${FFTW3_LIBRARY}")
+
 include(cmake/DetectIfunc.cmake)
 
 if(NOT DEFINED CSDR_GPL)
@@ -70,6 +77,15 @@ SET(CMAKE_C_FLAGS_DEBUG "-g -O3")
 SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O3 -DNDEBUG")
 SET(CMAKE_C_FLAGS_RELWITHDEBINFO "-g -O3 -DNDEBUG")
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
+       	${FFTW3_INCLUDE_DIR}
+)
+link_directories(
+	/usr/local/lib
+	)
+
+link_libraries(
+	${FFTW3_LIBRARY}
+)
 
 add_subdirectory(src)

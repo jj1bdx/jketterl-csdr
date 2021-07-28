@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
     if( (addr_host.sin_addr.s_addr=inet_addr(host_address)) == INADDR_NONE )
 		error_exit(MSG_START "invalid host address");
 
-	if( bind(listen_socket, (struct sockaddr*) &addr_host, sizeof(addr_host)) < 0 )
+	if( ::bind(listen_socket, (struct sockaddr*) &addr_host, sizeof(addr_host)) == -1 )
 		error_exit(MSG_START "cannot bind() address to the socket");
 
 	if( listen(listen_socket, 10) == -1 )
@@ -220,6 +220,9 @@ int main(int argc, char* argv[])
 				for(int i=0;i<clients.size();i++) fprintf(stderr, "%p ", clients[i]);
 				fprintf(stderr, "\x1b[0m\n");
 			}
+
+			const int set = 1;
+			setsockopt(new_socket, SOL_SOCKET, SO_NOSIGPIPE, &set, sizeof(set));
 
 			//We're the parent, let's create a new client and initialize it
 			client_t* new_client = new client_t;
@@ -332,7 +335,7 @@ void* client_thread (void* param)
 
 		//Read data from global tsmpool and write it to client socket
 		if(NMUX_DEBUG) fprintf(stderr, "client %p: sending...", param);
-		ret = send(this_client->socket, pool_read_buffer + client_buffer_index, lpool->size - client_buffer_index, MSG_NOSIGNAL);
+		ret = send(this_client->socket, pool_read_buffer + client_buffer_index, lpool->size - client_buffer_index, 0);
 		if(NMUX_DEBUG) fprintf(stderr, "client sent.\n");
 		if(ret == -1) 
 		{
